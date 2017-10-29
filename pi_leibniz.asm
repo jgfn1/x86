@@ -1,68 +1,23 @@
-; SECTION .data
-;     message1: db "Enter the first number: ", 0
-;     message2: db "Enter the second number: ", 0
-;     formatin: db "%d", 0
-;     formatout: db "%d", 10, 0 ; newline, nul terminator
-;     integer1: times 4 db 0 ; 32-bits integer = 4 bytes
-;     integer2: times 4 db 0 ;
-; SECTION .text
-;    global _main 
-;    extern _scanf 
-;    extern _printf     
-
-; _main:
-
-;    push ebx ; save registers
-;    push ecx
-;    push message1
-;    call printf
-
-;    add esp, 4 ; remove parameters
-;    push integer1 ; address of integer1 (second parameter)
-;    push formatin ; arguments are right to left (first parameter)
-;    call scanf
-
-;    add esp, 8 ; remove parameters
-;    push message2
-;    call printf
-
-;    add esp, 4 ; remove parameters
-;    push integer2 ; address of integer2
-;    push formatin ; arguments are right to left
-;    call scanf
-
-;    add esp, 8 ; remove parameters
-
-;    mov ebx, dword [integer1]
-;    mov ecx, dword [integer2]
-;    add ebx, ecx ; add the values          ; the addition
-;    push ebx
-;    push formatout
-;    call printf                            ; call printf to display the sum
-;    add esp, 8                             ; remove parameters
-;    pop ecx
-;    pop ebx ; restore registers in reverse order
-;    mov eax, 0 ; no error
-;    ret
-; Which is the asm version of this C function:
-
-; #include <stdio.h>
-; int main(int argc, char *argv[])
-; {
-;     int integer1, integer2;
-;     printf("Enter the first number: ");
-;     scanf("%d", &integer1);
-;     printf("Enter the second number: ");
-;     scanf("%d", &integer2);
-;     printf("%d\n", integer1+integer2);
-;     return 0;
-; }
-
 section .data
-n: times 4 dw 0
+n: times 4 db 0
+numerator: times 4 db 0
+denominator: times 4 db 0
+i:	times 4 db 0
+signal: dd 1
+pi: dq 0
+two: dd 2
+four: dd 4
+zero: dd 0
+teste: dq 0
+test_str: db 'st0: %f', 10, 0
+test_str1: db 'teste true: %f', 10, 0
+test_str2: db 'teste FALSE: %f', 10, 0
+aux: dd 0
 
-string: db 'Number: %d.', 10, 0
-str_scanf: db '%d', 0
+string: db 'Pi: %.20f.', 10, 0
+str_scanf: db ' %d', 0
+str_scanf1: db ' %d', 10, 0
+oi: db 'oi', 10, 0
 
 section .text
 extern printf, scanf
@@ -77,13 +32,123 @@ main:
 	call scanf 
 	add esp, 6
 
-	push dword[n]
+	mov ecx, dword[n]
+	mov dword[i], ecx
+	
+	; push ecx
+	; push string
+	; call printf
+	; add esp, 4
+	
+	leibniz_is_awesome:
+
+		; push ecx
+		; push str_scanf1
+		; call printf
+		; add esp, 4
+
+		mov dword[signal], 1;resets the signal
+		mov ecx, dword[i]
+
+		fild dword[two]		;st0 = 2
+		fild dword[i]
+		fprem
+		fst dword[teste]
+		mov eax, dword[teste]
+		cmp eax, 0			;checks if i is even
+		
+		fstp dword[teste]
+		fstp dword[teste]
+		; push 0
+		; push ecx
+		; push test_str
+		; call printf
+		; add esp, 8
+		
+		je positive 		;if it's odd, the partial
+							;sum will be negative
+		; push oi
+		; call printf
+		; add esp, 2	
+
+		mov dword[signal], -1
+		positive: 
+			fild dword[two]	;st0 = 2
+			fild dword[i] 	;st0 = i, st1 = 2
+			fmul st0, st1	;st0 = 2 * i
+			fld1 			
+			fadd st0, st1 	;st0 = 2 * i + 1
+			fld1
+			fdiv st0, st1	;st0 = 1 / (2 * i + 1)
+			fild dword[signal]
+			fmul st0, st1	;st0 = unsigned_result * signal
+
+			; fst qword[teste]
+			; push dword[teste+4]
+			; push dword[teste]
+			; push test_str2
+			; call printf
+			; add esp, 12
+			; jmp $
+			
+			fld qword[pi]
+
+			; fst qword[teste]
+			; push dword[teste+4]
+			; push dword[teste]
+			; push test_str
+			; call printf
+			; add esp, 12
+			; jmp $
+		
+			fadd st0, st1	;pi(st0) = pi + result
+
+			; fst qword[teste]
+			; push dword[teste+4]
+			; push dword[teste]
+			; push test_str1
+			; call printf
+			; add esp, 12
+			; jmp $
+		
+			fstp qword[pi] 	;stores the updated pi value
+			fstp dword[teste]
+			fstp dword[teste]
+			fstp dword[teste]
+			fstp dword[teste]
+			fstp dword[teste]
+			fstp dword[teste]
+			fstp dword[teste]
+			; push oi
+			; call printf
+			; add esp, 2
+			
+			; mov ecx, dword[i]
+			; push ecx
+			; push string
+			; call printf
+			; add esp, 4
+
+			mov ecx, dword[i]
+			add ecx, -1
+			mov dword[i], ecx
+			; mov ecx, 1
+	cmp ecx, -1
+	jne leibniz_is_awesome
+
+	fld qword[pi]
+	fild dword[four]
+	fmul st0, st1 			;st0 = (pi/4) * 4
+	fst qword[pi] 			;stores the final pi value
+	
+	; sub esp, 8
+	push dword[pi+4]
+	push dword[pi]
 	push string
 	call printf
-	add esp, 4
+	add esp, 12
 
 jmp end
-
 
 end:
 mov eax, 1	;exit
