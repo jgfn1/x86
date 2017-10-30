@@ -9,15 +9,11 @@ two: dd 2
 four: dd 4
 zero: dd 0
 teste: dq 0
-test_str: db 'st0: %f', 10, 0
-test_str1: db 'teste true: %f', 10, 0
-test_str2: db 'teste FALSE: %f', 10, 0
 aux: dd 0
 
 string: db 'Pi: %.20f.', 10, 0
 str_scanf: db ' %d', 0
 str_scanf1: db ' %d', 10, 0
-oi: db 'oi', 10, 0
 
 section .text
 extern printf, scanf
@@ -35,17 +31,7 @@ main:
 	mov ecx, dword[n]
 	mov dword[i], ecx
 	
-	; push ecx
-	; push string
-	; call printf
-	; add esp, 4
-	
 	leibniz_is_awesome:
-
-		; push ecx
-		; push str_scanf1
-		; call printf
-		; add esp, 4
 
 		mov dword[signal], 1;resets the signal
 		mov ecx, dword[i]
@@ -59,17 +45,9 @@ main:
 		
 		fstp dword[teste]
 		fstp dword[teste]
-		; push 0
-		; push ecx
-		; push test_str
-		; call printf
-		; add esp, 8
 		
 		je positive 		;if it's odd, the partial
 							;sum will be negative
-		; push oi
-		; call printf
-		; add esp, 2	
 
 		mov dword[signal], -1
 		positive: 
@@ -82,35 +60,8 @@ main:
 			fdiv st0, st1	;st0 = 1 / (2 * i + 1)
 			fild dword[signal]
 			fmul st0, st1	;st0 = unsigned_result * signal
-
-			; fst qword[teste]
-			; push dword[teste+4]
-			; push dword[teste]
-			; push test_str2
-			; call printf
-			; add esp, 12
-			; jmp $
-			
 			fld qword[pi]
-
-			; fst qword[teste]
-			; push dword[teste+4]
-			; push dword[teste]
-			; push test_str
-			; call printf
-			; add esp, 12
-			; jmp $
-		
 			fadd st0, st1	;pi(st0) = pi + result
-
-			; fst qword[teste]
-			; push dword[teste+4]
-			; push dword[teste]
-			; push test_str1
-			; call printf
-			; add esp, 12
-			; jmp $
-		
 			fstp qword[pi] 	;stores the updated pi value
 			fstp dword[teste]
 			fstp dword[teste]
@@ -119,20 +70,10 @@ main:
 			fstp dword[teste]
 			fstp dword[teste]
 			fstp dword[teste]
-			; push oi
-			; call printf
-			; add esp, 2
-			
-			; mov ecx, dword[i]
-			; push ecx
-			; push string
-			; call printf
-			; add esp, 4
 
 			mov ecx, dword[i]
 			add ecx, -1
 			mov dword[i], ecx
-			; mov ecx, 1
 	cmp ecx, -1
 	jne leibniz_is_awesome
 
@@ -141,7 +82,6 @@ main:
 	fmul st0, st1 			;st0 = (pi/4) * 4
 	fst qword[pi] 			;stores the final pi value
 	
-	; sub esp, 8
 	push dword[pi+4]
 	push dword[pi]
 	push string
